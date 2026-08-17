@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sunday Print Studio — custom 3D printed goods</title>
+<meta name="description" content="Sunday Print Studio — custom 3D printed name clickers, bag tags & homeware. Pay by card or PayPal." />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="images/logo-icon.png" />
+
+<!-- PayPal JS SDK — replace YOUR_PAYPAL_CLIENT_ID with your real Client ID -->
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=AUD&intent=capture"></script>
+</head>
+<body>
+
+<div class="sparkle-bg" aria-hidden="true">
+  <span style="top:8%; left:6%;">✨</span>
+  <span style="top:18%; left:80%; animation-delay:1s;">💜</span>
+  <span style="top:55%; left:92%; animation-delay:2s;">⭐</span>
+  <span style="top:70%; left:4%; animation-delay:1.5s;">💫</span>
+  <span style="top:40%; left:48%; animation-delay:0.5s;">🩷</span>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="#" class="logo">
+      <img src="images/logo-icon.png" alt="Sunday Print Studio logo" />
+      <span class="logo-text">Sunday <br />Print Studio</span>
+    </a>
+    <nav class="main-nav">
+      <a href="#hero-products">Signature</a>
+      <a href="#shop">Shop</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="cart-btn" id="openCart" aria-label="Open cart">
+      🛍️ Cart <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-tile">
+        <img class="hero-logo" src="images/logo-icon.png" alt="Sunday Print Studio" />
+        <h1>custom prints,<br />made just for you ⋆｡°✩</h1>
+        <p>Sunday Print Studio makes 3D-printed name clickers, bag tags &
+           homeware — personalised, small batch, printed with care.</p>
+        <div class="hero-badges">
+          <span>💳 Card accepted</span>
+          <span>🅿️ PayPal accepted</span>
+          <span>📦 Ships from Australia</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero-products" id="hero-products">
+    <div class="wrap">
+      <h2>Made to Order ✨</h2>
+      <p class="subtitle">Our two signature prints — tell us what you'd like and we'll print it just for you.</p>
+      <div class="hero-product-grid" id="heroProductGrid"><!-- injected by js/main.js --></div>
+    </div>
+  </section>
+
+  <section class="shop-section" id="shop">
+    <div class="wrap">
+      <h2>Ready-Made Shop 🧁</h2>
+      <p class="subtitle">No customization needed — just add to your bag.</p>
+      <div class="bento-grid" id="productGrid"><!-- injected by js/main.js --></div>
+    </div>
+  </section>
+
+  <section class="about-section" id="about">
+    <div class="wrap">
+      <div class="about-tile">
+        <div>
+          <h2>about sunday print studio 🌷</h2>
+          <p>Sunday Print Studio started as a tiny weekend project on a
+             single 3D printer. Every design is made in-house and printed
+             in small batches, with soft colours and round corners built
+             right in.</p>
+        </div>
+        <div class="contact-card" id="contact">
+          <h3>say hi 👋</h3>
+          <p>Questions about an order, a custom request, or just want to say
+             hello?</p>
+          <p><a href="mailto:hello@sundayprint.store">hello@sundayprint.store</a></p>
+          <p style="font-size:13px; color:var(--ink-soft);">We usually reply within 1–2 business days.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="payment-icons">
+    <span title="Visa/Mastercard">💳</span>
+    <span title="PayPal">🅿️</span>
+  </div>
+  <p>© <span id="year"></span> Sunday Print Studio · sundayprint.store</p>
+</footer>
+
+<!-- Cart drawer -->
+<div class="overlay" id="overlay"></div>
+<aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart">
+  <div class="cart-header">
+    <h2>your bag 🎀</h2>
+    <button class="close-cart" id="closeCart" aria-label="Close cart">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-subtotal">
+      <span>Subtotal</span>
+      <span id="cartSubtotal">$0.00</span>
+    </div>
+    <button class="pay-btn pay-stripe" id="stripeCheckout">💳 Pay with Card</button>
+    <div id="paypal-button-container"></div>
+    <p class="checkout-note">Prices in AUD. Shipping calculated at checkout.</p>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/checkout-stripe.js"></script>
+<script src="js/checkout-paypal.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

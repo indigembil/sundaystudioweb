@@ -1,0 +1,9 @@
+{
+  "name": "sundayprint-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sunday Studio — kawaii x bento box online shop",
+  "dependencies": {
+    "stripe": "^16.0.0"
+  }
+}
