@@ -76,6 +76,14 @@ const HERO_PRODUCTS = [
     description: "A 3D-printed fidget clicker with your name on it — pricing depends on how many characters you print.",
     emoji: "🔘",
     image: "",
+    // 3 example photos shown as little polaroids on this card. Replace
+    // each path with a real photo any time — drop the file into
+    // /images and point these at it, e.g. "images/clicker-1.jpg".
+    photos: [
+      "images/placeholder-product.png",
+      "images/placeholder-product.png",
+      "images/placeholder-product.png"
+    ],
     tag: "Made to order",
     pricing: {
       type: "perCharacter",
@@ -128,6 +136,14 @@ const HERO_PRODUCTS = [
     description: "A personalised 3D-printed bag or luggage tag with a name and emergency contact.",
     emoji: "🏷️",
     image: "",
+    // 3 example photos shown as little polaroids on this card. Replace
+    // each path with a real photo any time — drop the file into
+    // /images and point these at it, e.g. "images/bagtag-1.jpg".
+    photos: [
+      "images/placeholder-product.png",
+      "images/placeholder-product.png",
+      "images/placeholder-product.png"
+    ],
     tag: "Made to order",
     pricing: { type: "fixed" },
     customization: {

@@ -45,6 +45,15 @@ function renderHeroProducts() {
   grid.innerHTML = HERO_PRODUCTS.map((p) => {
     const fieldsHtml = p.customization.fields.map((f) => renderHeroFieldHtml(p, f)).join("");
     const isDynamicPricing = p.pricing && p.pricing.type === "perCharacter";
+    const tilts = [-6, 3, -3, 5, -4]; // alternating angles so the photos look casually scattered
+    const photosHtml = (p.photos || [])
+      .map(
+        (src, i) => `
+        <div class="hero-polaroid" style="transform: rotate(${tilts[i % tilts.length]}deg);">
+          <img src="${src}" alt="${p.name} example ${i + 1}" />
+        </div>`
+      )
+      .join("");
 
     return `
       <article class="hero-card" data-hero-id="${p.id}">
@@ -59,6 +68,8 @@ function renderHeroProducts() {
             </p>
           </div>
         </div>
+
+        ${photosHtml ? `<div class="hero-photo-row">${photosHtml}</div>` : ""}
 
         <form class="hero-form" data-hero-form="${p.id}">
           ${fieldsHtml}
@@ -130,7 +141,7 @@ function renderProducts() {
   grid.innerHTML = PRODUCTS.map((p) => {
     const soldOut = p.stock <= 0;
     const media = p.image
-      ? `<img class="tile-photo" src="${p.image}" alt="${p.name}" />`
+      ? `<div class="tile-polaroid"><img src="${p.image}" alt="${p.name}" /></div>`
       : `<span class="tile-emoji">${p.emoji}</span>`;
     const colourOptions = (p.colours || [])
       .map((c) => `<option value="${c}">${c}</option>`)
