@@ -3,15 +3,18 @@
  *
  * How it works:
  *   1. Customer clicks "Pay with Card".
- *   2. Browser sends the cart contents — including any Name /
- *      dropdown / comment personalization — to a small serverless
- *      function (netlify/functions/create-checkout-session.js).
+ *   2. Browser sends the cart contents — product id, quantity, and
+ *      whatever was typed/picked in the order form (name, colours,
+ *      emoji, etc.) — to a small serverless function
+ *      (netlify/functions/create-checkout-session.js).
  *   3. That function talks to Stripe using your SECRET key (kept safe
  *      on the server, never in this file) and creates a Checkout
- *      Session. Prices are looked up server-side from js/products.js,
- *      so nobody can tamper with the price — only the personalization
- *      text (name/colour/etc) comes from the browser, which is safe
- *      since it doesn't affect what's charged.
+ *      Session. The PRICE is calculated server-side from
+ *      js/products.js (including the Name Clicker's per-character
+ *      price table), so nobody can tamper with the price by editing
+ *      the page in their browser's dev tools — only the personalization
+ *      text comes from the browser, which is safe since it doesn't
+ *      affect what's charged.
  *   4. The customer is redirected to Stripe's own secure hosted
  *      checkout page to enter their card details.
  *
@@ -40,7 +43,7 @@ async function startStripeCheckout() {
         items: lines.map((l) => ({
           id: l.product.id,
           qty: l.qty,
-          customization: l.customization
+          selections: l.selections
         }))
       })
     });

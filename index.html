@@ -14,17 +14,9 @@
 <link rel="icon" href="images/logo-icon.png" />
 
 <!-- PayPal JS SDK — replace YOUR_PAYPAL_CLIENT_ID with your real Client ID -->
-<script src="https://www.paypal.com/sdk/js?client-id=ARxRBpo_bWfPinlKZ4gW2l4-WWm0tRDNVt_uz1SHuAtZpx9JfmXXm_Xlo_GziEzQ_ZXDZROypIxR4tkd&currency=AUD&intent=capture"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=AUD&intent=capture"></script>
 </head>
 <body>
-
-<div class="sparkle-bg" aria-hidden="true">
-  <span style="top:8%; left:6%;">✨</span>
-  <span style="top:18%; left:80%; animation-delay:1s;">💜</span>
-  <span style="top:55%; left:92%; animation-delay:2s;">⭐</span>
-  <span style="top:70%; left:4%; animation-delay:1.5s;">💫</span>
-  <span style="top:40%; left:48%; animation-delay:0.5s;">🩷</span>
-</div>
 
 <header class="site-header">
   <div class="wrap">
@@ -48,15 +40,34 @@
   <section class="hero">
     <div class="wrap">
       <div class="hero-tile">
-        <img class="hero-logo" src="images/logo-icon.png" alt="Sunday Print Studio" />
-        <h1>custom prints,<br />made just for you ⋆｡°✩</h1>
-        <p>Sunday Print Studio makes 3D-printed name clickers, bag tags &
-           homeware — personalised, small batch, printed with care.</p>
+        <p class="hero-copy">Sunday Print Studio makes customised clickers, bag
+           tags, art kits & homeware. Personalised, small batch, printed with
+           care.</p>
         <div class="hero-badges">
-          <span>💳 Card accepted</span>
-          <span>🅿️ PayPal accepted</span>
+          <span>🧒 Kid-owned & run business</span>
+          <span>💳🅿️ Card & PayPal accepted</span>
           <span>📦 Ships from Australia</span>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="newsletter-section">
+    <div class="wrap">
+      <div class="newsletter-tile">
+        <div class="newsletter-copy">
+          <h3>Join the club! 💌</h3>
+          <p>Pop your email in for special discount codes and updates when new products drop.</p>
+        </div>
+        <!-- This form uses Netlify's free built-in form capture — submissions
+             show up in your Netlify dashboard under the "Forms" tab. No
+             separate email service or backend needed. -->
+        <form id="newsletterForm" class="newsletter-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="newsletter" />
+          <p style="display:none;"><label>Don't fill this out: <input name="bot-field" /></label></p>
+          <input type="email" name="email" required placeholder="you@example.com" aria-label="Email address" />
+          <button type="submit">Subscribe</button>
+        </form>
       </div>
     </div>
   </section>
@@ -82,10 +93,9 @@
       <div class="about-tile">
         <div>
           <h2>about sunday print studio 🌷</h2>
-          <p>Sunday Print Studio started as a tiny weekend project on a
-             single 3D printer. Every design is made in-house and printed
-             in small batches, with soft colours and round corners built
-             right in.</p>
+          <p>Sunday Print Studio started as a tiny sunday project on a
+             single 3D printer. Every design is mindfully created in small
+             batches by kids for kids.</p>
         </div>
         <div class="contact-card" id="contact">
           <h3>say hi 👋</h3>
@@ -100,9 +110,17 @@
 </main>
 
 <footer class="site-footer">
-  <div class="payment-icons">
-    <span title="Visa/Mastercard">💳</span>
-    <span title="PayPal">🅿️</span>
+  <div class="social-icons">
+    <!-- EDIT: replace href="#" with your real profile links -->
+    <a href="#" class="social-icon" aria-label="Instagram" title="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <a href="#" class="social-icon" aria-label="TikTok" title="TikTok">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2h3c.2 2 1.7 3.6 4 3.9V9c-1.5 0-2.9-.5-4-1.3V15a6 6 0 1 1-6-6c.3 0 .7 0 1 .1V12a3 3 0 1 0 2 2.8V2Z"/></svg>
+    </a>
+    <a href="#" class="social-icon" aria-label="Facebook" title="Facebook">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 22v-9h3l.5-3.5H13V7.2c0-1 .3-1.7 1.8-1.7H17V2.3C16.6 2.2 15.5 2 14.2 2 11.4 2 9.5 3.7 9.5 6.8V9.5H6.5V13H9.5v9h3.5z"/></svg>
+    </a>
   </div>
   <p>© <span id="year"></span> Sunday Print Studio · sundayprint.store</p>
 </footer>

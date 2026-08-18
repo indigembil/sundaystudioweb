@@ -2,10 +2,11 @@
  * Serverless function that creates a Stripe Checkout Session.
  *
  * IMPORTANT — this is what makes the checkout safe:
- * Prices are looked up HERE, on the server, straight from
- * js/products.js. The browser only ever sends product IDs, quantities,
- * and personalization text (name/colour/etc) — never prices — so
- * nobody can tamper with the price by editing the page in their
+ * Prices are calculated HERE, on the server, straight from
+ * js/products.js — including the Name Clicker's per-character price
+ * table. The browser only ever sends product IDs, quantities, and
+ * personalization text (name/colour/emoji/etc) — never a price — so
+ * nobody can tamper with what's charged by editing the page in their
  * browser's dev tools. Personalization text is included in the line
  * item description so you can see exactly what to print, right in
  * your Stripe dashboard.
@@ -17,14 +18,17 @@
  */
 
 const Stripe = require("stripe");
-const { ALL_PRODUCTS } = require("../../js/products.js");
+const { ALL_PRODUCTS, calculatePrice } = require("../../js/products.js");
 
-function summarizeCustomization(customization) {
-  if (!customization) return "";
-  const parts = [`Name: ${customization.name}`];
-  (customization.choices || []).forEach((c) => parts.push(`${c.label}: ${c.value}`));
-  if (customization.comment) parts.push(`Note: ${customization.comment}`);
-  return parts.join(" | ").slice(0, 500);
+function summarizeSelections(product, selections) {
+  const entries = Object.entries(selections || {});
+  if (!entries.length) return "";
+  const fields = (product.customization && product.customization.fields) || [];
+  const labelFor = (key) => {
+    const field = fields.find((f) => f.key === key);
+    return field ? field.label.replace(/\s*\(.*?\)\s*$/, "") : key;
+  };
+  return entries.map(([key, value]) => `${labelFor(key)}: ${value}`).join(" | ").slice(0, 500);
 }
 
 exports.handler = async function (event) {
@@ -49,23 +53,22 @@ exports.handler = async function (event) {
       return { statusCode: 400, body: JSON.stringify({ error: "Cart is empty" }) };
     }
 
-    const line_items = items.map(({ id, qty, customization }) => {
+    const line_items = items.map(({ id, qty, selections }) => {
       const product = ALL_PRODUCTS.find((p) => p.id === id);
       if (!product) throw new Error(`Unknown product id: ${id}`);
       if (product.stock !== undefined && product.stock <= 0) {
         throw new Error(`${product.name} is sold out`);
       }
 
-      const customSummary = summarizeCustomization(customization);
-      const description = customSummary
-        ? `${product.description} — ${customSummary}`
-        : product.description;
+      const price = calculatePrice(product, selections); // server-side, trusted
+      const summary = summarizeSelections(product, selections);
+      const description = summary ? `${product.description} — ${summary}` : product.description;
 
       return {
         quantity: Math.max(1, qty || 1),
         price_data: {
           currency: "aud",
-          unit_amount: Math.round(product.price * 100), // Stripe uses cents
+          unit_amount: Math.round(price * 100), // Stripe uses cents
           product_data: { name: product.name, description }
         }
       };

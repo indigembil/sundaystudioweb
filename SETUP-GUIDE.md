@@ -168,24 +168,35 @@ email app.
   other fields. Instructions are in comments at the top of the file.
   Keep `HERO_PRODUCTS` (2) + `PRODUCTS` between 5–10 total for the
   layout to look its best.
-- **To edit the two "Made to Order" hero products** (Name Clicker
-  and Bag Tag) and their order forms: same file, top section
-  (`HERO_PRODUCTS`). Each has a `customization` block —
-  `nameField` is the text input label, `dropdowns` is an array of
-  exactly 4 dropdowns (each with a `label` and its own `options` list
-  you can freely add to or trim), and `comment` is the notes box.
-  Renaming a dropdown's `label` or editing its `options` is just
-  editing plain text — no other file needs to change.
+- **To edit the two "Made to Order" hero products** (Name Clicker and
+  Bag Tag) and their order forms: same file, top section
+  (`HERO_PRODUCTS`). Each has a `customization.fields` list — every
+  entry is either a text box (`type: "text"`) or a dropdown
+  (`type: "dropdown"`, with its own `options` list you can freely add
+  to or trim). Add, remove, or reorder fields by editing that list;
+  renaming a label or editing dropdown options is just editing plain
+  text — no other file needs to change.
+- **To change the Name Clicker's pricing:** still in `HERO_PRODUCTS`,
+  find `pricing: { type: "perCharacter", ... table: { 2: 7, 3: 9, ... } }`.
+  Each `number: price` pair means "this many characters in the name =
+  this price." Edit any price, e.g. change `3: 9` to `3: 10` to charge
+  $10 for a 3-character name. The smallest and largest numbers in the
+  table automatically become the minimum/maximum characters a customer
+  can type — so if you add `11: 22`, customers can now type up to 11
+  characters. An emoji in the name counts as one character, same as a
+  letter.
 - **To mark something sold out:** set its `stock` to `0` — the site
   automatically shows a "Sold Out" stamp and disables the button.
-- **To add real photos instead of emoji tiles:** drop an image file
-  into the `images` folder and set that product's `image` field to
-  e.g. `"images/my-photo.jpg"`.
-- **Made-to-order details show up in your dashboards:** the Name,
-  dropdown selections, and comment a customer enters travel through to
-  both Stripe (in the line item description on your dashboard) and
-  PayPal (in the item description), so you'll see exactly what to
-  print for each order without a separate system.
+- **To add real photos instead of the placeholder graphic:** drop an
+  image file into the `images` folder and change that product's
+  `image` field to e.g. `"images/my-photo.jpg"`. Every regular product
+  currently points at the same placeholder (`images/placeholder-product.png`)
+  so it's obvious at a glance which ones still need a real photo.
+- **Made-to-order details show up in your dashboards:** whatever a
+  customer types or picks (name, colours, emoji, emergency contact,
+  etc) travels through to both Stripe (in the line item description on
+  your dashboard) and PayPal (in the item description), so you'll see
+  exactly what to print for each order without a separate system.
 - **Every change:** save the file, then re-deploy (if using GitHub,
   just commit and push — Netlify redeploys automatically in about a
   minute; if using drag-and-drop, re-drag the folder).
@@ -193,6 +204,43 @@ email app.
   Payments. PayPal orders appear in your PayPal account activity.
   There's no separate "orders admin" in this simple setup — your
   Stripe/PayPal dashboards are your order list.
+
+---
+
+## 7b. Social links (Instagram / TikTok / Facebook)
+
+The footer icons currently link to `#` (nowhere). Open `index.html`,
+find the `<!-- EDIT: replace href="#" -->` comment near the bottom,
+and replace each `href="#"` with your real profile URL, e.g.
+`href="https://instagram.com/sundayprintstudio"`. Save, commit,
+redeploy — same as any other change.
+
+---
+
+## 7c. Your mailing list (email signups)
+
+The "Join the club" box under the banner uses **Netlify Forms** — a
+free feature already built into your hosting, so there's no extra
+service to sign up for and no cost.
+
+- **To see who signed up:** in Netlify, click your site, then the
+  **"Forms"** tab. You'll see a form called "newsletter" with every
+  email address anyone has submitted.
+- **To export the list:** most Netlify plans let you download form
+  submissions as a CSV file from that same Forms tab — handy for
+  importing into an email tool later (like Mailchimp) when you're
+  ready to actually send discount code emails.
+- **Free tier limit:** Netlify's free plan includes 100 form
+  submissions per month across your whole site [likely — worth
+  double-checking against Netlify's current pricing page once you're
+  close to that many signups, since free-tier limits do change over
+  time]. That's just how many people can join the list per month for
+  free — plenty to start with.
+- **Sending the actual discount emails is a separate step:** right now
+  this form only collects addresses, it doesn't send anything back
+  automatically. When you're ready to email your list, export the CSV
+  and use a tool like Mailchimp or Beehiiv (both have free tiers for
+  small lists) to actually send campaigns.
 
 ---
 

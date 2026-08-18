@@ -3,78 +3,164 @@
  *  SUNDAY PRINT STUDIO — PRODUCT CATALOG
  * ============================================================
  *  This is the ONLY file you need to edit to change what's for
- *  sale, including the two hero/signature customizable products
+ *  sale, including the two hero/signature made-to-order products
  *  at the top of the page. No coding knowledge required — just
  *  follow the pattern below.
  * ============================================================
  */
 
 /**
+ * countCharacters — counts how many "letters" are in a bit of text,
+ * where an emoji counts as ONE character (not 2 or 4, which is how
+ * computers normally see them). Used for the Name Clicker's pricing.
+ * You don't need to edit this.
+ */
+function countCharacters(str) {
+  str = (str || "").trim();
+  if (!str) return 0;
+  if (typeof Intl !== "undefined" && Intl.Segmenter) {
+    const seg = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+    return Array.from(seg.segment(str)).length;
+  }
+  return Array.from(str).length;
+}
+
+/**
+ * calculatePrice — works out the real price of a line item.
+ *   - Fixed-price products: just returns product.price.
+ *   - "perCharacter" products (the Name Clicker): looks up the price
+ *     table below using however many characters are in the name.
+ * You don't need to edit this either — edit the PRICE TABLE inside
+ * HERO_PRODUCTS instead.
+ */
+function calculatePrice(product, selections) {
+  const pricing = product.pricing || { type: "fixed" };
+  if (pricing.type !== "perCharacter") return product.price;
+
+  const raw = (selections && selections[pricing.field]) || "";
+  const len = countCharacters(raw);
+  const table = pricing.table;
+  const sizes = Object.keys(table).map(Number).sort((a, b) => a - b);
+  const min = sizes[0];
+  const max = sizes[sizes.length - 1];
+  const clamped = Math.max(min, Math.min(max, len));
+  return table[clamped];
+}
+
+/**
  * HERO_PRODUCTS — your 2 signature, made-to-order items. Each one
- * gets a big featured tile with an order form: a Name field, 4
- * dropdown selectors, and a comment box. Customers fill this out
- * before adding it to their bag, so you know exactly what to print.
+ * gets a big featured tile with an order form built from "fields".
  *
- *   id, name, price, description, emoji, image, tag  → same as
- *      regular products below.
+ *   fields — the list of boxes shown on the form, in order. Each one is:
+ *     { type: "text", key: "...", label: "...", placeholder: "...",
+ *       minLength, maxLength, required }
+ *     { type: "dropdown", key: "...", label: "...", options: [...] }
+ *   You can add, remove, or reorder fields freely. "key" is just an
+ *   internal name — keep it short, no spaces, don't reuse a key twice
+ *   in the same product.
  *
- *   customization.nameField.label       → label above the text input
- *   customization.nameField.placeholder → grey hint text inside it
- *
- *   customization.dropdowns             → EXACTLY 4 entries. Each one:
- *     label    → what the dropdown is called (e.g. "Color")
- *     options  → the list of choices shown — EDIT THESE FREELY,
- *                add/remove as many options as you like per dropdown.
- *
- *   customization.comment.label / placeholder → the notes box.
+ *   pricing — how the price is worked out:
+ *     { type: "fixed" }  → always product.price
+ *     { type: "perCharacter", field: "name", table: { 2: 7, 3: 9, ... } }
+ *       → price depends on how many characters are typed into the
+ *         field named "field". EDIT THE TABLE to change prices —
+ *         e.g. change `3: 9` to `3: 10` to charge $10 for 3 characters.
+ *         Whatever the smallest/largest numbers in your table are
+ *         become the minimum/maximum characters allowed.
  */
 const HERO_PRODUCTS = [
   {
     id: "HERO-01",
     name: "Name Clicker",
-    price: 8.9,
-    description: "A 3D-printed fidget clicker, personalised with your name — satisfying to click, fun to carry.",
+    price: 7, // starting price shown before the customer types a name
+    description: "A 3D-printed fidget clicker with your name on it — pricing depends on how many characters you print.",
     emoji: "🔘",
     image: "",
     tag: "Made to order",
+    pricing: {
+      type: "perCharacter",
+      field: "name",
+      table: { 2: 7, 3: 9, 4: 11, 5: 13, 6: 15, 7: 17, 8: 18, 9: 19, 10: 20 }
+    },
     customization: {
-      nameField: { label: "Name to print", placeholder: "e.g. Alex" },
-      dropdowns: [
-        { label: "Colour", options: ["White", "Cyan", "Purple", "Pink", "Black"] },
-        { label: "Size", options: ["Small (3cm)", "Medium (5cm)"] },
-        { label: "Font Style", options: ["Rounded", "Bold Sans", "Script", "Minimal"] },
-        { label: "Attachment", options: ["Keyring Loop", "Standalone", "Lanyard Loop"] }
-      ],
-      comment: { label: "Notes for us (optional)", placeholder: "Anything else we should know about your order?" }
+      fields: [
+        {
+          type: "text",
+          key: "name",
+          label: "Name to print (2–10 characters — letters, numbers or emoji)",
+          placeholder: "e.g. Alex",
+          minLength: 2,
+          maxLength: 10,
+          required: true
+        },
+        {
+          // EDIT THIS LIST to change which decorative emoji customers can pick.
+          type: "dropdown",
+          key: "emoji",
+          label: "Emoji",
+          options: ["None", "🐰 Bunny", "🐱 Cat", "🌸 Flower", "⭐ Star", "🦄 Unicorn", "🩷 Heart", "🐶 Dog"]
+        },
+        {
+          type: "dropdown",
+          key: "baseColour",
+          label: "Base Colour",
+          options: ["White", "Cyan", "Purple", "Pink", "Black"]
+        },
+        {
+          type: "dropdown",
+          key: "letterColour",
+          label: "Letter Colour",
+          options: ["White", "Cyan", "Purple", "Pink", "Black"]
+        },
+        {
+          type: "dropdown",
+          key: "buttonColour",
+          label: "Button Colour",
+          options: ["White", "Cyan", "Purple", "Pink", "Black"]
+        }
+      ]
     }
   },
   {
     id: "HERO-02",
     name: "Bag Tag",
     price: 11.9,
-    description: "A personalised 3D-printed bag or luggage tag with your name, ready to clip on and go.",
+    description: "A personalised 3D-printed bag or luggage tag with a name and emergency contact.",
     emoji: "🏷️",
     image: "",
     tag: "Made to order",
+    pricing: { type: "fixed" },
     customization: {
-      nameField: { label: "Name to print", placeholder: "e.g. Alex" },
-      dropdowns: [
-        { label: "Colour", options: ["White", "Cyan", "Purple", "Pink", "Black"] },
-        { label: "Size", options: ["Small (5cm)", "Medium (7cm)"] },
-        { label: "Font Style", options: ["Rounded", "Bold Sans", "Script", "Minimal"] },
-        { label: "Attachment", options: ["Strap Loop", "Carabiner Clip", "Zip Tie Loop"] }
-      ],
-      comment: { label: "Notes for us (optional)", placeholder: "Anything else we should know about your order?" }
+      fields: [
+        { type: "text", key: "name", label: "Name", placeholder: "e.g. Alex", required: true },
+        {
+          type: "text",
+          key: "emergencyContact",
+          label: "Emergency Contact",
+          placeholder: "e.g. Mum - 0400 000 000",
+          required: true
+        },
+        {
+          type: "dropdown",
+          key: "colour",
+          label: "Colour",
+          options: ["White", "Cyan", "Purple", "Pink", "Black"]
+        }
+      ]
     }
   }
 ];
 
 /**
- * PRODUCTS — your regular, ready-made catalog (no customization
- * form, just a straightforward "Add to Bag"). Same fields as before:
- *   id, name, price, description, emoji, image, tag, size, stock
- * "size" controls the bento tile shape: small / medium / large / wide / tall
- * Keep HERO_PRODUCTS (2) + PRODUCTS between 3–8 for a total of 5–10 SKUs.
+ * PRODUCTS — your regular, ready-made catalog. No custom form, just a
+ * Colour dropdown and an "Add to Bag" button.
+ *   id, name, price, description, emoji, image, tag, size, stock  → as before.
+ *   colours → the list of colour choices shown on this product's tile.
+ *             EDIT FREELY, add or remove colours per product.
+ *   image   → currently points at a shared placeholder graphic so you
+ *             can see where photos will go. Replace with a real photo
+ *             any time: drop the file into /images and change this to
+ *             e.g. "images/my-photo.jpg".
  */
 const PRODUCTS = [
   {
@@ -83,10 +169,11 @@ const PRODUCTS = [
     price: 14,
     description: "3D-printed clip tray keeps 4 cables tangle-free on your desk.",
     emoji: "🧵",
-    image: "",
+    image: "images/placeholder-product.png",
     tag: "Best Seller",
     size: "medium",
-    stock: 22
+    stock: 22,
+    colours: ["White", "Cyan", "Purple", "Pink"]
   },
   {
     id: "SKU-02",
@@ -94,10 +181,11 @@ const PRODUCTS = [
     price: 12.5,
     description: "Two small geometric planter pots with drainage tray, 8cm.",
     emoji: "🪴",
-    image: "",
+    image: "images/placeholder-product.png",
     tag: "",
     size: "small",
-    stock: 30
+    stock: 30,
+    colours: ["White", "Cyan", "Purple", "Pink"]
   },
   {
     id: "SKU-03",
@@ -105,10 +193,11 @@ const PRODUCTS = [
     price: 16,
     description: "Adjustable-angle phone stand, works with most phone cases.",
     emoji: "📱",
-    image: "",
+    image: "images/placeholder-product.png",
     tag: "New",
     size: "medium",
-    stock: 18
+    stock: 18,
+    colours: ["White", "Cyan", "Purple", "Pink", "Black"]
   },
   {
     id: "SKU-04",
@@ -116,10 +205,11 @@ const PRODUCTS = [
     price: 22,
     description: "Lithophane-style nightlight shade, fits standard LED tea lights.",
     emoji: "🌙",
-    image: "",
+    image: "images/placeholder-product.png",
     tag: "",
     size: "wide",
-    stock: 10
+    stock: 10,
+    colours: ["White", "Cyan", "Purple", "Pink"]
   },
   {
     id: "SKU-05",
@@ -127,10 +217,11 @@ const PRODUCTS = [
     price: 18,
     description: "Set of 4 coasters with matching stand, cork-backed.",
     emoji: "☕",
-    image: "",
+    image: "images/placeholder-product.png",
     tag: "",
     size: "small",
-    stock: 20
+    stock: 20,
+    colours: ["White", "Cyan", "Purple", "Pink", "Black"]
   },
   {
     id: "SKU-06",
@@ -138,10 +229,11 @@ const PRODUCTS = [
     price: 7.5,
     description: "Pack of 8 adhesive cord clips in mixed sizes.",
     emoji: "🔌",
-    image: "",
+    image: "images/placeholder-product.png",
     tag: "",
     size: "small",
-    stock: 40
+    stock: 40,
+    colours: ["White", "Cyan", "Purple", "Pink", "Black"]
   }
 ];
 
@@ -150,4 +242,6 @@ const ALL_PRODUCTS = [...HERO_PRODUCTS, ...PRODUCTS];
 
 // Do not edit below this line — this makes the catalog available
 // to the rest of the site.
-if (typeof module !== "undefined") module.exports = { HERO_PRODUCTS, PRODUCTS, ALL_PRODUCTS };
+if (typeof module !== "undefined") {
+  module.exports = { HERO_PRODUCTS, PRODUCTS, ALL_PRODUCTS, calculatePrice, countCharacters };
+}

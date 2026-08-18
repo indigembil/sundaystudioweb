@@ -3,17 +3,19 @@
  * page refresh. Each item in the cart is a "line":
  *   {
  *     lineId: "L-...",              // unique per line, auto-generated
- *     productId: "SKU-01" | "HERO-01",
+ *     productId: "SKU-01" | "HERO-01" | ...,
  *     qty: 2,
- *     customization: null | {       // only set for hero products
- *       name: "Alex",
- *       choices: [{ label: "Colour", value: "Cyan" }, ...],
- *       comment: "Please rush if possible"
- *     }
+ *     selections: {                 // whatever the customer filled in/picked
+ *       name: "Alex", emoji: "🦄 Unicorn", baseColour: "Cyan", ...
+ *     },
+ *     unitPrice: 13                 // price at the time it was added
+ *                                    // (snapshotted so later price-table
+ *                                    // edits don't change items already
+ *                                    // sitting in someone's cart)
  *   }
  */
 const Cart = {
-  KEY: "sundayprint_cart_v2",
+  KEY: "sundayprint_cart_v3",
 
   read() {
     try {
@@ -33,25 +35,21 @@ const Cart = {
     return "L-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
   },
 
-  // Regular (non-customized) products: adding the same product again
-  // just increases its quantity.
-  addSimple(productId, qty = 1) {
+  // Adds a product with its selections (may be {} for a plain product
+  // with no options at all). Two lines merge into one only if it's
+  // the same product with the exact same selections — e.g. two "Cyan"
+  // organisers merge, but a "Cyan" and a "Pink" one stay separate.
+  add(productId, selections, qty, unitPrice) {
+    selections = selections || {};
     const lines = this.read();
-    const existing = lines.find((l) => l.productId === productId && !l.customization);
+    const key = JSON.stringify(selections);
+    const existing = lines.find((l) => l.productId === productId && JSON.stringify(l.selections || {}) === key);
+
     if (existing) {
       existing.qty += qty;
     } else {
-      lines.push({ lineId: this.makeLineId(), productId, qty, customization: null });
+      lines.push({ lineId: this.makeLineId(), productId, qty, selections, unitPrice });
     }
-    this.write(lines);
-  },
-
-  // Hero/made-to-order products: each submission is its own line,
-  // since two orders for the same product may have different
-  // personalization.
-  addCustom(productId, customization, qty = 1) {
-    const lines = this.read();
-    lines.push({ lineId: this.makeLineId(), productId, qty, customization });
     this.write(lines);
   },
 
@@ -75,18 +73,20 @@ const Cart = {
     this.write([]);
   },
 
-  // Returns [{ lineId, product, qty, customization, lineTotal }]
+  // Returns [{ lineId, product, qty, selections, unitPrice, lineTotal }]
   lines() {
     return this.read()
       .map((line) => {
         const product = ALL_PRODUCTS.find((p) => p.id === line.productId);
         if (!product) return null;
+        const unitPrice = typeof line.unitPrice === "number" ? line.unitPrice : product.price;
         return {
           lineId: line.lineId,
           product,
           qty: line.qty,
-          customization: line.customization,
-          lineTotal: +(product.price * line.qty).toFixed(2)
+          selections: line.selections || {},
+          unitPrice,
+          lineTotal: +(unitPrice * line.qty).toFixed(2)
         };
       })
       .filter(Boolean);
