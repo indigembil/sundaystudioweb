@@ -73,16 +73,16 @@ const HERO_PRODUCTS = [
     id: "HERO-01",
     name: "Name Clicker",
     price: 7, // starting price shown before the customer types a name
-    description: "A 3D-printed fidget clicker with your name on it — pricing depends on how many characters you print.",
-    emoji: "🔘",
+    description: "A 3D-printed fidget clicker with your name on it. Pricing depends on how many characters you print",
+    emoji: "🦄",
     image: "",
     // 3 example photos shown as little polaroids on this card. Replace
     // each path with a real photo any time — drop the file into
     // /images and point these at it, e.g. "images/clicker-1.jpg".
     photos: [
-      "images/placeholder-product.png",
-      "images/placeholder-product.png",
-      "images/placeholder-product.png"
+      "images/picture1.png",
+      "images/picture2.png",
+      "images/picture3.png"
     ],
     tag: "Made to order",
     pricing: {
@@ -106,25 +106,25 @@ const HERO_PRODUCTS = [
           type: "dropdown",
           key: "emoji",
           label: "Emoji",
-          options: ["None", "🐰 Bunny", "🐱 Cat", "🌸 Flower", "⭐ Star", "🦄 Unicorn", "🩷 Heart", "🐶 Dog"]
+          options: ["None", "Bow", "Cat", "Duck", "Flower", "Star", "Love Heart", "Music", "Moon", "Dog Paw", "Plane", "Soccer Ball", "Basket Ball", "Grape", "Coffee cup"]
         },
         {
           type: "dropdown",
           key: "baseColour",
           label: "Base Colour",
-          options: ["White", "Cyan", "Purple", "Pink", "Black"]
+          options: ["White", "Caramel", "Brown", "Green", "Cyan", "Purple", "Pink", "Yellow", "Orange", "Red", "Grey", "Black"]
         },
         {
           type: "dropdown",
           key: "letterColour",
           label: "Letter Colour",
-          options: ["White", "Cyan", "Purple", "Pink", "Black"]
+          options: ["White", "Caramel", "Brown", "Green", "Cyan", "Purple", "Pink", "Yellow", "Orange", "Red", "Grey", "Black"]
         },
         {
           type: "dropdown",
           key: "buttonColour",
           label: "Button Colour",
-          options: ["White", "Cyan", "Purple", "Pink", "Black"]
+          options: ["White", "Caramel", "Brown", "Green", "Cyan", "Purple", "Pink", "Yellow", "Orange", "Red", "Grey", "Black"]
         }
       ]
     }
@@ -133,15 +133,15 @@ const HERO_PRODUCTS = [
     id: "HERO-02",
     name: "Bag Tag",
     price: 11.9,
-    description: "A personalised 3D-printed bag or luggage tag with a name and emergency contact.",
+    description: "A personalised 3D-printed bag or luggage tag with a name and emergency contact (that you can tap & connect!)",
     emoji: "🏷️",
     image: "",
     // 3 example photos shown as little polaroids on this card. Replace
     // each path with a real photo any time — drop the file into
     // /images and point these at it, e.g. "images/bagtag-1.jpg".
     photos: [
-      "images/placeholder-product.png",
-      "images/placeholder-product.png",
+      "images/picture4.png",
+      "images/picture3.png",
       "images/placeholder-product.png"
     ],
     tag: "Made to order",
@@ -160,7 +160,7 @@ const HERO_PRODUCTS = [
           type: "dropdown",
           key: "colour",
           label: "Colour",
-          options: ["White", "Cyan", "Purple", "Pink", "Black"]
+          options: ["White", "Caramel", "Brown", "Green", "Cyan", "Purple", "Pink", "Yellow", "Orange", "Red", "Grey", "Black"]
         }
       ]
     }
@@ -181,24 +181,24 @@ const HERO_PRODUCTS = [
 const PRODUCTS = [
   {
     id: "SKU-01",
-    name: "Desk Cable Organiser",
-    price: 14,
-    description: "3D-printed clip tray keeps 4 cables tangle-free on your desk.",
+    name: "Food Fidget Toys",
+    price: 13,
+    description: "Food-themed fidget toy, to crave your hunger and need to click",
     emoji: "🧵",
     image: "images/placeholder-product.png",
-    tag: "Best Seller",
+    tag: "COMING SOON",
     size: "medium",
     stock: 22,
-    colours: ["White", "Cyan", "Purple", "Pink"]
+    colours: ["French Fries", "Sushi", "Burger", "Coffee", "Wonka Bar"]
   },
   {
     id: "SKU-02",
     name: "Mini Planter Pot (Set of 2)",
-    price: 12.5,
+    price: 15,
     description: "Two small geometric planter pots with drainage tray, 8cm.",
     emoji: "🪴",
     image: "images/placeholder-product.png",
-    tag: "",
+    tag: "COMING SOON",
     size: "small",
     stock: 30,
     colours: ["White", "Cyan", "Purple", "Pink"]
@@ -206,11 +206,11 @@ const PRODUCTS = [
   {
     id: "SKU-03",
     name: "Geometric Phone Stand",
-    price: 16,
+    price: 10,
     description: "Adjustable-angle phone stand, works with most phone cases.",
     emoji: "📱",
     image: "images/placeholder-product.png",
-    tag: "New",
+    tag: "COMING SOON",
     size: "medium",
     stock: 18,
     colours: ["White", "Cyan", "Purple", "Pink", "Black"]
@@ -218,11 +218,11 @@ const PRODUCTS = [
   {
     id: "SKU-04",
     name: "LED Nightlight Shade",
-    price: 22,
+    price: 25,
     description: "Lithophane-style nightlight shade, fits standard LED tea lights.",
     emoji: "🌙",
     image: "images/placeholder-product.png",
-    tag: "",
+    tag: "COMING SOON",
     size: "wide",
     stock: 10,
     colours: ["White", "Cyan", "Purple", "Pink"]
@@ -234,7 +234,7 @@ const PRODUCTS = [
     description: "Set of 4 coasters with matching stand, cork-backed.",
     emoji: "☕",
     image: "images/placeholder-product.png",
-    tag: "",
+    tag: "COMING SOON",
     size: "small",
     stock: 20,
     colours: ["White", "Cyan", "Purple", "Pink", "Black"]
@@ -246,7 +246,7 @@ const PRODUCTS = [
     description: "Pack of 8 adhesive cord clips in mixed sizes.",
     emoji: "🔌",
     image: "images/placeholder-product.png",
-    tag: "",
+    tag: "COMING SOON",
     size: "small",
     stock: 40,
     colours: ["White", "Cyan", "Purple", "Pink", "Black"]
