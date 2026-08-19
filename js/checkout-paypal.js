@@ -13,9 +13,18 @@
  * small shop the risk is low; ask if you'd like server-side PayPal
  * verification added later.
  *
+ * Shipping: unlike Stripe Checkout, PayPal's button here has no
+ * built-in "pick your shipping option" step, so every PayPal order
+ * automatically includes the flat AU_SHIPPING amount below. If a
+ * PayPal customer actually wanted Local Pickup, refund them that
+ * amount by hand afterwards — see "Shipping & postage" in
+ * SETUP-GUIDE.md. EDIT AU_SHIPPING to change the amount.
+ *
  * Setup required: replace YOUR_PAYPAL_CLIENT_ID in index.html with
  * your real PayPal Client ID. See SETUP-GUIDE.md.
  */
+
+const AU_SHIPPING = 10; // flat rate, AUD — added to every PayPal order
 
 function summarizeSelectionsForPayPal(product, selections) {
   const entries = Object.entries(selections || {});
@@ -49,14 +58,19 @@ function renderPayPalButtons() {
       }));
 
       const itemTotal = Cart.subtotal();
+      const shipping = AU_SHIPPING;
+      const orderTotal = +(itemTotal + shipping).toFixed(2);
 
       return actions.order.create({
         purchase_units: [
           {
             amount: {
               currency_code: "AUD",
-              value: itemTotal.toFixed(2),
-              breakdown: { item_total: { currency_code: "AUD", value: itemTotal.toFixed(2) } }
+              value: orderTotal.toFixed(2),
+              breakdown: {
+                item_total: { currency_code: "AUD", value: itemTotal.toFixed(2) },
+                shipping: { currency_code: "AUD", value: shipping.toFixed(2) }
+              }
             },
             items
           }

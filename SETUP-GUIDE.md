@@ -186,16 +186,34 @@ email app.
   characters. An emoji in the name counts as one character, same as a
   letter.
 - **To mark something sold out:** set its `stock` to `0` — the site
-  automatically shows a "Sold Out" stamp and disables the button.
+  automatically shows a "Sold Out" stamp and disables the button. All
+  6 regular shop products are currently set to `stock: 0` (they're
+  tagged "COMING SOON"), so the button says "Sold Out" underneath that
+  badge — change `stock` to a real number whenever one is ready to
+  sell, and the button re-enables automatically.
 - **To add real photos instead of the placeholder graphic:** drop an
   image file into the `images` folder and change that product's
   `image` field to e.g. `"images/my-photo.jpg"`. Every regular product
   currently points at the same placeholder (`images/placeholder-product.png`)
-  so it's obvious at a glance which ones still need a real photo.
+  so it's obvious at a glance which ones still need a real photo. The
+  two hero products (Name Clicker, Bag Tag) each have a `photos` list
+  of 3 — 2 of those now point at your real photos, and the 3rd is
+  still the placeholder on both; send another photo any time and I'll
+  (or you can) swap it in.
+- **To charge extra for a specific dropdown option** (like the Name
+  Clicker's emoji, which is +$2 for anything except "None"): add
+  `extraCost: 2, freeOption: "None"` to that field in
+  `customization.fields`. The surcharge applies whenever the customer's
+  selection isn't equal to `freeOption`. This works on any dropdown
+  field on either hero product, not just emoji — change the number or
+  add it to another field the same way.
+- **To relabel a regular product's dropdown** (e.g. "Style" instead of
+  "Colour" for Food Fidget Toys, since its options are French
+  Fries/Sushi/Burger, not colours): add `colourLabel: "Style"` next to
+  that product's `colours` list.
 - **Made-to-order details show up in your dashboards:** whatever a
   customer types or picks (name, colours, emoji, emergency contact,
-  etc) travels through to both Stripe (in the line item description on
-  your dashboard) and PayPal (in the item description), so you'll see
+  etc) travels through to both Stripe and PayPal, so you'll see
   exactly what to print for each order without a separate system.
 - **Every change:** save the file, then re-deploy (if using GitHub,
   just commit and push — Netlify redeploys automatically in about a
@@ -204,6 +222,44 @@ email app.
   Payments. PayPal orders appear in your PayPal account activity.
   There's no separate "orders admin" in this simple setup — your
   Stripe/PayPal dashboards are your order list.
+
+### Seeing what was ordered, in Stripe, without clicking into every payment
+
+For every **new** order placed from now on, the whole order (every item,
+qty, and customization — name, colours, emoji, emergency contact, etc)
+is written into the payment's **Description** field, right on the main
+list:
+
+1. Log into Stripe → **Payments** in the left sidebar.
+2. You'll see a **Description** column in the table — for a Name
+   Clicker + Bag Tag order it'll read something like
+   `1x Name Clicker (Name to print: Alexa | Emoji: 🦄 Unicorn | Base
+   Colour: Cyan...); 2x Bag Tag (Name: Max | ...)`. That's the whole
+   order, in one row, no clicking required.
+3. To get it as an actual table file: click **Export** above the list
+   (or **More → Export payments**), choose a date range, and download
+   the CSV. The Description column comes through as its own spreadsheet
+   column, so you can open it in Excel/Google Sheets and filter/sort
+   your orders like a real order table.
+4. The same text is also saved under that payment's **Metadata** as
+   `order_summary`, in case you ever need it from the API instead of
+   the dashboard.
+
+**Two things worth knowing [certain]:**
+- This only applies **going forward** — it's a code change, so it
+  can't rewrite orders that were already placed before you deployed
+  this update. For any older order, you'll still need to open that
+  specific payment to see its line-item descriptions.
+- **PayPal doesn't get this same order-level summary.** PayPal's
+  transaction list only shows per-item descriptions the way it already
+  did — there's no equivalent "whole order in one field" for PayPal
+  orders in this setup [certain, based on how the PayPal integration
+  is built]. If most of your real orders end up going through PayPal
+  rather than Stripe, this fix won't help you there, and you'd still
+  be opening individual PayPal transactions to see the details. Let me
+  know if that's a problem in practice and I can look at ways to
+  summarize PayPal orders too (e.g. logging them somewhere on your
+  side at checkout time).
 
 ---
 
@@ -241,6 +297,54 @@ service to sign up for and no cost.
   automatically. When you're ready to email your list, export the CSV
   and use a tool like Mailchimp or Beehiiv (both have free tiers for
   small lists) to actually send campaigns.
+
+---
+
+## 7d. Shipping & postage
+
+Shipping is currently set up as **Australia-only, flat rate**, with
+card and PayPal customers handled differently because of a real
+limitation in how each one works.
+
+**Card (Stripe):** on Stripe's own checkout page, the customer picks
+one of two options themselves:
+- **Standard Shipping (Australia)** — $10 flat
+- **Local Pickup — 3028 Seabrook, VIC** — $0
+
+Stripe still asks for a shipping address either way (there's no way to
+skip that step per option), so there's a small note on that page
+telling pickup customers any address is fine there — you'll contact
+them separately to arrange collection.
+
+- **To change the $10 rate or add delivery estimate days:** edit
+  `shipping_options` in `netlify/functions/create-checkout-session.js`
+  — the amount is in cents (`1000` = $10.00).
+- **To change the pickup address or wording:** edit the
+  `display_name` on the second `shipping_options` entry, and the
+  `custom_text.shipping_address.message` just below it.
+- **To open shipping to more countries:** edit
+  `shipping_address_collection: { allowed_countries: ["AU"] }` in the
+  same file. Only do this once you know what to actually charge for
+  postage there — right now the $10 rate is Australia-only and would
+  likely undercharge international shipping.
+
+**PayPal:** PayPal's button on this site doesn't have Stripe's
+built-in "pick your shipping option" step, so **every PayPal order
+automatically includes the $10 flat shipping** — there's no pickup
+option in the PayPal flow itself. If a customer pays via PayPal and
+actually wanted Local Pickup, refund them the $10 shipping portion by
+hand afterwards (the cart footer note on the site tells customers to
+message you for this).
+
+- **To change the $10 amount:** edit the `AU_SHIPPING` constant near
+  the top of `js/checkout-paypal.js`.
+
+**Not built yet, flagged so it's not forgotten:** real-time AusPost
+rates based on parcel size. That's a bigger integration — it needs an
+AusPost developer/business account and a size/weight lookup per order
+— and wasn't built into this round of changes. The flat $10 rate above
+is the placeholder until that's worth doing. Let me know if you'd
+like to scope that out next.
 
 ---
 

@@ -27,24 +27,44 @@ function countCharacters(str) {
 
 /**
  * calculatePrice — works out the real price of a line item.
- *   - Fixed-price products: just returns product.price.
+ *   - Fixed-price products: starts from product.price.
  *   - "perCharacter" products (the Name Clicker): looks up the price
  *     table below using however many characters are in the name.
- * You don't need to edit this either — edit the PRICE TABLE inside
- * HERO_PRODUCTS instead.
+ *   - Then adds any per-field surcharges (see "extraCost" below).
+ * You don't need to edit this either — edit the PRICE TABLE or a
+ * field's "extraCost" inside HERO_PRODUCTS instead.
  */
 function calculatePrice(product, selections) {
   const pricing = product.pricing || { type: "fixed" };
-  if (pricing.type !== "perCharacter") return product.price;
+  let base;
 
-  const raw = (selections && selections[pricing.field]) || "";
-  const len = countCharacters(raw);
-  const table = pricing.table;
-  const sizes = Object.keys(table).map(Number).sort((a, b) => a - b);
-  const min = sizes[0];
-  const max = sizes[sizes.length - 1];
-  const clamped = Math.max(min, Math.min(max, len));
-  return table[clamped];
+  if (pricing.type === "perCharacter") {
+    const raw = (selections && selections[pricing.field]) || "";
+    const len = countCharacters(raw);
+    const table = pricing.table;
+    const sizes = Object.keys(table).map(Number).sort((a, b) => a - b);
+    const min = sizes[0];
+    const max = sizes[sizes.length - 1];
+    const clamped = Math.max(min, Math.min(max, len));
+    base = table[clamped];
+  } else {
+    base = product.price;
+  }
+
+  // Per-field surcharges: add "extraCost: 2, freeOption: 'None'" to any
+  // dropdown field to charge extra whenever the customer picks anything
+  // other than the free option — e.g. the Name Clicker's emoji field
+  // charges +$2 for any decoration except "None".
+  const fields = (product.customization && product.customization.fields) || [];
+  let extras = 0;
+  fields.forEach((f) => {
+    if (!f.extraCost) return;
+    const value = selections && selections[f.key];
+    const freeValue = f.freeOption !== undefined ? f.freeOption : "";
+    if (value && value !== freeValue) extras += f.extraCost;
+  });
+
+  return +(base + extras).toFixed(2);
 }
 
 /**
@@ -80,9 +100,9 @@ const HERO_PRODUCTS = [
     // each path with a real photo any time — drop the file into
     // /images and point these at it, e.g. "images/clicker-1.jpg".
     photos: [
-      "images/picture1.png",
-      "images/picture2.png",
-      "images/picture3.png"
+      "images/hero-nameclicker-1.jpg",
+      "images/hero-nameclicker-2.jpg",
+      "images/placeholder-product.png"
     ],
     tag: "Made to order",
     pricing: {
@@ -103,10 +123,13 @@ const HERO_PRODUCTS = [
         },
         {
           // EDIT THIS LIST to change which decorative emoji customers can pick.
+          // extraCost + freeOption below mean: +$2 for anything except "None".
           type: "dropdown",
           key: "emoji",
-          label: "Emoji",
-          options: ["None", "Bow", "Cat", "Duck", "Flower", "Star", "Love Heart", "Music", "Moon", "Dog Paw", "Plane", "Soccer Ball", "Basket Ball", "Grape", "Coffee cup"]
+          label: "Emoji (+$2, optional)",
+          options: ["None", "Bow", "Cat", "Duck", "Flower", "Star", "Love Heart", "Music", "Moon", "Dog Paw", "Plane", "Soccer Ball", "Basket Ball", "Grape", "Coffee cup"],
+          extraCost: 2,
+          freeOption: "None"
         },
         {
           type: "dropdown",
@@ -140,8 +163,8 @@ const HERO_PRODUCTS = [
     // each path with a real photo any time — drop the file into
     // /images and point these at it, e.g. "images/bagtag-1.jpg".
     photos: [
-      "images/picture4.png",
-      "images/picture3.png",
+      "images/hero-bagtag-1.jpg",
+      "images/hero-bagtag-2.jpg",
       "images/placeholder-product.png"
     ],
     tag: "Made to order",
@@ -171,8 +194,12 @@ const HERO_PRODUCTS = [
  * PRODUCTS — your regular, ready-made catalog. No custom form, just a
  * Colour dropdown and an "Add to Bag" button.
  *   id, name, price, description, emoji, image, tag, size, stock  → as before.
- *   colours → the list of colour choices shown on this product's tile.
- *             EDIT FREELY, add or remove colours per product.
+ *   colours → the list of choices shown on this product's tile dropdown.
+ *             EDIT FREELY, add or remove options per product.
+ *   colourLabel → optional. Changes the dropdown's on-page label from
+ *             the default "Colour" to something else, e.g. "Style" —
+ *             handy when the options aren't actually colours (like
+ *             Food Fidget Toys' French Fries/Sushi/Burger options).
  *   image   → currently points at a shared placeholder graphic so you
  *             can see where photos will go. Replace with a real photo
  *             any time: drop the file into /images and change this to
@@ -188,7 +215,8 @@ const PRODUCTS = [
     image: "images/placeholder-product.png",
     tag: "COMING SOON",
     size: "medium",
-    stock: 22,
+    stock: 0,
+    colourLabel: "Style", // shows "Style" instead of "Colour" on this tile's dropdown, since the options aren't colours
     colours: ["French Fries", "Sushi", "Burger", "Coffee", "Wonka Bar"]
   },
   {
@@ -200,7 +228,7 @@ const PRODUCTS = [
     image: "images/placeholder-product.png",
     tag: "COMING SOON",
     size: "small",
-    stock: 30,
+    stock: 0,
     colours: ["White", "Cyan", "Purple", "Pink"]
   },
   {
@@ -212,7 +240,7 @@ const PRODUCTS = [
     image: "images/placeholder-product.png",
     tag: "COMING SOON",
     size: "medium",
-    stock: 18,
+    stock: 0,
     colours: ["White", "Cyan", "Purple", "Pink", "Black"]
   },
   {
@@ -224,7 +252,7 @@ const PRODUCTS = [
     image: "images/placeholder-product.png",
     tag: "COMING SOON",
     size: "wide",
-    stock: 10,
+    stock: 0,
     colours: ["White", "Cyan", "Purple", "Pink"]
   },
   {
@@ -236,7 +264,7 @@ const PRODUCTS = [
     image: "images/placeholder-product.png",
     tag: "COMING SOON",
     size: "small",
-    stock: 20,
+    stock: 0,
     colours: ["White", "Cyan", "Purple", "Pink", "Black"]
   },
   {
@@ -248,7 +276,7 @@ const PRODUCTS = [
     image: "images/placeholder-product.png",
     tag: "COMING SOON",
     size: "small",
-    stock: 40,
+    stock: 0,
     colours: ["White", "Cyan", "Purple", "Pink", "Black"]
   }
 ];

@@ -7,7 +7,9 @@ function money(n) {
 
 function getFieldLabel(product, key) {
   const field = (product.customization && product.customization.fields || []).find((f) => f.key === key);
-  return field ? field.label.replace(/\s*\(.*?\)\s*$/, "") : key; // trims "(2-10 characters...)" hints from labels
+  if (field) return field.label.replace(/\s*\(.*?\)\s*$/, ""); // trims "(2-10 characters...)" hints from labels
+  if (key === "colour") return product.colourLabel || "Colour"; // regular-grid products' colour/style dropdown
+  return key;
 }
 
 /* ---------------- hero / made-to-order products ---------------- */
@@ -92,22 +94,36 @@ function renderHeroProducts() {
       return selections;
     }
 
+    // Any field that affects price (the per-character field, plus any
+    // dropdown with an "extraCost") gets a live listener so the price
+    // shown updates as soon as the customer changes it.
+    const pricingFieldKeys = new Set();
+    if (p.pricing && p.pricing.type === "perCharacter") pricingFieldKeys.add(p.pricing.field);
+    p.customization.fields.forEach((f) => {
+      if (f.extraCost) pricingFieldKeys.add(f.key);
+    });
+
     function updateLivePrice() {
-      if (!(p.pricing && p.pricing.type === "perCharacter")) return;
+      if (pricingFieldKeys.size === 0) return;
       const selections = currentSelections();
-      const raw = selections[p.pricing.field] || "";
-      if (!raw) {
-        priceDisplay.textContent = `From ${money(p.price)}`;
-        return;
+
+      if (p.pricing && p.pricing.type === "perCharacter") {
+        const raw = selections[p.pricing.field] || "";
+        if (!raw) {
+          priceDisplay.textContent = `From ${money(p.price)}`;
+          return;
+        }
       }
+
       const price = calculatePrice(p, selections);
       priceDisplay.textContent = money(price);
     }
 
-    if (p.pricing && p.pricing.type === "perCharacter") {
-      const nameInput = form.querySelector(`[data-key="${p.pricing.field}"]`);
-      nameInput.addEventListener("input", updateLivePrice);
-    }
+    pricingFieldKeys.forEach((key) => {
+      const el = form.querySelector(`[data-key="${key}"]`);
+      if (!el) return;
+      el.addEventListener(el.tagName === "SELECT" ? "change" : "input", updateLivePrice);
+    });
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -158,7 +174,7 @@ function renderProducts() {
           ${
             p.colours && p.colours.length
               ? `<div class="field tile-colour-field">
-                   <label for="${p.id}-colour">Colour</label>
+                   <label for="${p.id}-colour">${p.colourLabel || "Colour"}</label>
                    <select id="${p.id}-colour" data-colour-for="${p.id}">${colourOptions}</select>
                  </div>`
               : ""
